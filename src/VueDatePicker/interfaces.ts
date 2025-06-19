@@ -244,6 +244,8 @@ export interface MultiCalendarsOptions {
     static: boolean;
     solo: boolean;
     count: number;
+    orderCalendars: boolean;
+    autoReselect: boolean;
 }
 
 export type MultiCalendarsProp = OptionEnabled | Partial<MultiCalendarsOptions>;

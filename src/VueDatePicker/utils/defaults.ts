@@ -86,6 +86,8 @@ export const defaultMultiCalendars = (multiCalendars?: MultiCalendarsProp): Mult
     const defaultOptions = {
         static: true,
         solo: false,
+        orderCalendars: false,
+        autoReselect: false,
     };
     if (!multiCalendars) return { ...defaultOptions, count: getMultiCalendarsCount(false) };
     const addOptions = isConfig ? multiCalendars : ({} as MultiCalendarsOptions);

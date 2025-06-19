@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper">
-        <Datepicker v-model="selectedDate" placeholder="Select Date" />
+        <Datepicker v-model="selectedDate" range :multi-calendars="{ solo: true, orderCalendars: true, autoReselect: true }" auto-apply placeholder="Select Date" />
     </div>
 </template>
 

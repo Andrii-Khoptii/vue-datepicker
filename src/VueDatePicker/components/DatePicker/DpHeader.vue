@@ -25,10 +25,10 @@
                 <ArrowBtn
                     v-if="showLeftIcon(defaultedMultiCalendars, instance) && !vertical"
                     :aria-label="defaultedAriaLabels?.prevMonth"
-                    :disabled="isDisabled(false)"
+                    :disabled="isDisabled(false) || soloDisableLeftArrow"
                     :class="defaultedUI?.navBtnPrev"
                     el-name="action-prev"
-                    @activate="handleMonthYearChange(false, true)"
+                    @activate="soloDisableLeftArrow ? null : handleMonthYearChange(false, true)"
                     @set-ref="setElRefs($event, 0)"
                 >
                     <slot v-if="$slots['arrow-left']" name="arrow-left" />
@@ -100,9 +100,9 @@
                     v-if="showLeftIcon(defaultedMultiCalendars, instance) && vertical"
                     :aria-label="defaultedAriaLabels?.prevMonth"
                     el-name="action-prev"
-                    :disabled="isDisabled(false)"
+                    :disabled="isDisabled(false) || soloDisableLeftArrow"
                     :class="defaultedUI?.navBtnPrev"
-                    @activate="handleMonthYearChange(false, true)"
+                    @activate="soloDisableLeftArrow ? null : handleMonthYearChange(false, true)"
                 >
                     <slot v-if="$slots['arrow-up']" name="arrow-up" />
                     <ChevronUpIcon v-if="!$slots['arrow-up']" />
@@ -111,10 +111,10 @@
                     v-if="showRightIcon(defaultedMultiCalendars, instance)"
                     ref="rightIcon"
                     el-name="action-next"
-                    :disabled="isDisabled(true)"
+                    :disabled="isDisabled(true) || soloDisableRightArrow"
                     :aria-label="defaultedAriaLabels?.nextMonth"
                     :class="defaultedUI?.navBtnNext"
-                    @activate="handleMonthYearChange(true, true)"
+                    @activate="soloDisableRightArrow ? null : handleMonthYearChange(true, true)"
                     @set-ref="setElRefs($event, disableYearSelect ? 2 : 3)"
                 >
                     <slot
@@ -167,6 +167,8 @@
         instance: { type: Number as PropType<number>, default: 0 },
         years: { type: Array as PropType<IDefaultSelect[]>, default: () => [] },
         months: { type: Array as PropType<IDefaultSelect[]>, default: () => [] },
+        soloNextDate: { type: Date as PropType<Date>, default: null },
+        soloPrevDate: { type: Date as PropType<Date>, default: null },
         ...PickerBaseProps,
     });
 
@@ -333,6 +335,22 @@
             return props.yearFirst ? [...selectionButtons.value].reverse() : selectionButtons.value;
         }
     });
+
+    const soloDisableLeftArrow = computed(() => {
+      if (props.soloPrevDate) {
+        const prevMonth = new Date(props.year, props.month, 0)
+        return !(prevMonth > props.soloPrevDate)
+      }
+      return false
+    })
+
+    const soloDisableRightArrow = computed(() => {
+      if (props.soloNextDate) {
+        const nextMonth = new Date(props.year, props.month + 2, 0)
+        return !(nextMonth < props.soloNextDate)
+      }
+      return false
+    })
 
     defineExpose({
         toggleMonthPicker,

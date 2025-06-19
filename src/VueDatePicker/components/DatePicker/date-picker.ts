@@ -46,6 +46,7 @@ export const useDatePicker = (
     updateFlow: () => void,
 ) => {
     const tempRange = ref<Date[]>([]);
+    const extraTempRange = ref<Date[]>([]);
     const lastScrollTime = ref(new Date());
     const clickedDate = ref<ICalendarDay | undefined>();
     const reMap = () => mapInternalModuleValues(props.isTextInputDate);
@@ -443,7 +444,7 @@ export const useDatePicker = (
     // Before range selecting, ensure that modelValue is properly set
     const presetTempRange = () => {
         tempRange.value = modelValue.value ? (modelValue.value as Date[]).slice() : [];
-        if (tempRange.value.length === 2 && !(defaultedRange.value.fixedStart || defaultedRange.value.fixedEnd)) {
+        if (tempRange.value.length === 2 && !(defaultedRange.value.fixedStart || defaultedRange.value.fixedEnd || defaultedMultiCalendars.value.autoReselect)) {
             tempRange.value = [];
         }
     };
@@ -497,14 +498,23 @@ export const useDatePicker = (
         presetTempRange();
         if (defaultedRange.value.autoRange) return handleAutoRange(day, isNext);
         if (defaultedRange.value.fixedStart || defaultedRange.value.fixedEnd) return setFixedDateRange(day);
-        if (!tempRange.value[0]) {
+        if (!tempRange.value[0] || defaultedMultiCalendars.value.autoReselect && !extraTempRange.value[0]) {
             tempRange.value[0] = getDate(day.value);
+            if (defaultedMultiCalendars.value.autoReselect) {
+              extraTempRange.value[0] = getDate(day.value);
+            }
             emit('range-start', tempRange.value[0]);
         } else if (checkMinMaxRange(getDate(day.value), modelValue.value) && !includesDisabled(day.value)) {
             if (isDateBefore(getDate(day.value), getDate(tempRange.value[0]))) {
                 tempRange.value.unshift(getDate(day.value));
+                if (defaultedMultiCalendars.value.autoReselect) {
+                  extraTempRange.value.unshift(getDate(day.value));
+                }
                 emit('range-end', tempRange.value[0]);
             } else {
+                if (defaultedMultiCalendars.value.autoReselect) {
+                  extraTempRange.value[1] = getDate(day.value);
+                }
                 tempRange.value[1] = getDate(day.value);
                 emit('range-end', tempRange.value[1]);
             }
@@ -560,7 +570,7 @@ export const useDatePicker = (
             validateRangeAfterTimeSet();
             modelValue.value = tempRange.value.slice();
 
-            checkRangeAutoApply(tempRange.value, emit, props.autoApply, props.modelAuto);
+            checkRangeAutoApply(tempRange.value, emit, props.autoApply, props.modelAuto, defaultedMultiCalendars.value.autoReselect ? extraTempRange.value : null );
         }
     };
 

@@ -18,6 +18,10 @@
             :year="year(instance)"
             :instance="instance"
             v-bind="$props"
+            :min-date="getSoloMinDate(instance)"
+            :max-date="getSoloMaxDate(instance)"
+            :solo-next-date="getSoloNextDate(instance)"
+            :solo-prev-date="getSoloPrevDate(instance)"
             @mount="componentMounted(CMP.header)"
             @reset-flow="$emit('reset-flow')"
             @update-month-year="updateMonthYear(instance, $event)"
@@ -39,6 +43,8 @@
             :year="year(instance)"
             :instance="instance"
             v-bind="$props"
+            :min-date="getSoloMinDate(instance)"
+            :max-date="getSoloMaxDate(instance)"
             @select-date="selectDate($event, instance !== 1)"
             @handle-space="handleSpace($event, instance !== 1)"
             @set-hover-date="setHoverDate($event)"
@@ -290,6 +296,40 @@
             presetDate,
         };
     };
+
+    const getSoloMaxDate = (instance: number) => {
+      if (defaultedMultiCalendars.value.orderCalendars && instance + 1 <= defaultedMultiCalendars.value.count - 1) {
+        return new Date(year.value(instance + 1), month.value(instance + 1), 0);
+      }
+
+      return undefined
+    }
+
+    const getSoloMinDate = (instance: number) => {
+      if (defaultedMultiCalendars.value.orderCalendars && instance - 1 >= 0) {
+        return new Date(year.value(instance - 1), month.value(instance - 1) + 2, 0);
+      }
+
+      return undefined
+    }
+
+    const getSoloNextDate = (instance: number) => {
+      if (defaultedMultiCalendars.value.orderCalendars && instance + 1 <= defaultedMultiCalendars.value.count - 1) {
+        return new Date(year.value(instance + 1), month.value(instance + 1) + 1, 0);
+      }
+
+      return undefined
+    }
+
+    const getSoloPrevDate = (instance: number) => {
+      if (defaultedMultiCalendars.value.orderCalendars && instance - 1 >= 0) {
+        return new Date(year.value(instance - 1), month.value(instance - 1) + 1, 1);
+      }
+
+      return undefined
+    }
+
+
 
     defineExpose({
         clearHoverDate,
